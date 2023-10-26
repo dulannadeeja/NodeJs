@@ -1,32 +1,45 @@
-const fs = require('fs');
+
 const routesHandler = (req, res) => {
     if (req.url === '/') {
         res.setHeader('Content-Type', 'text/html');
-        res.write('<form action="/message" method="POST">');
-        res.write('<input type="text" name="message">');
-        res.write('<button type="submit">Send</button>');
-        res.write('</form>');
+        res.write('<html>');
+        res.write('<head><title>NodeJS</title></head>');
+        res.write('<body><h1>Hello from NodeJS Server!</h1></body>');
+        res.write('<form action="/create-user" method="POST"><input type="text" name="username"><button type="submit">Send</button></form>');
+        res.write('</html>');
         return res.end();
     }
 
-    if (req.url === '/message' && req.method === 'POST') {
-        let body = [];
+    if (req.url === '/users') {
+        res.setHeader('Content-Type', 'text/html');
+        res.write('<html>');
+        res.write('<head><title>NodeJS</title></head>');
+        res.write('<body><ul><li>dulannadeeja</li><li>kaushikehsla</li></ul></body>');
+        res.write('</html>');
+        return res.end();
+    }
 
+    if (req.url === '/create-user' && req.method === 'POST') {
+        const body = [];
         req.on('data', (chunk) => {
-            console.log(chunk);
             body.push(chunk);
         });
 
         req.on('end', () => {
-            body = Buffer.concat(body).toString();
-            console.log(body);
-            const message = body.split('=')[1];
-            fs.writeFileSync('message.txt', message);
-            res.statusCode = 302;
-            res.setHeader('Location', '/');
-            return res.end();
-        })
+            const parsedBody = Buffer.concat(body).toString();
+            const username = parsedBody.split("=")[1];
+            console.log(username);
+        });
+
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        return res.end();
     }
+
+    res.setHeader('Content-Type', 'text/html');
+    res.statusCode = 404;
+    res.write('<html><head><title>page not found</title></head><body><h1>page not found!</h1></body></html>');
+    res.end();
 }
 
 module.exports = routesHandler;
