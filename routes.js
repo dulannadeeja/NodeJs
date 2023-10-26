@@ -44,14 +44,3 @@ const routesHandler = (req, res) => {
 
 module.exports = routesHandler;
 
-// alternative way to export
-// module.exports = {
-//     handler: routesHandler,
-// };
-
-// alternative way to export
-// module.exports.handler = routesHandler;
-
-// alternative way to export
-// exports.handler = routesHandler;
-
