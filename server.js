@@ -1,4 +1,5 @@
 const http = require('http');
+const fs = require('fs');
 
 const server = http.createServer((req, res) => {
 
@@ -8,12 +9,14 @@ const server = http.createServer((req, res) => {
         res.write('<input type="text" name="message">');
         res.write('<button type="submit">Send</button>');
         res.write('</form>');
-        res.end();
+        return res.end();
     }
 
     if (req.url === '/message' && req.method === 'POST') {
-        res.write('<h1>Message received</h1>');
-        res.end();
+        fs.writeFileSync('message.txt', 'DUMMY');
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        return res.end();
     }
 })
 
