@@ -9,8 +9,12 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(adminRoutes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+
+app.use((req, res) => {
+    res.status(404).send('<html><body><h1>Page Not Found</h1></body></html>');
+});
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
