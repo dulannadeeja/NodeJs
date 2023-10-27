@@ -2,22 +2,21 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.use((req, res, next) => {
-    console.log("Request received at " + Date.now() + " to middleware 1");
-    next();
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use('/add-product', (req, res) => {
+    res.send('<html><body><h1>Add Product</h1><form action="/product" method="POST"><input type="text" name="title"><button type="submit">Add Product</button></form></body></html>');
 });
 
-app.use((req, res, next) => {
-    console.log("Request received at " + Date.now() + " to middleware 2");
-    next();
+app.post('/product', (req, res) => {
+    console.log(req.body);
+    res.redirect('/');
 });
 
-app.get('/users', (req, res) => {
-    res.send('<h1>This is the users page</h1>');
-});
-
-app.get('/', (req, res) => {
-    res.send('<h1>This is the home page</h1>');
+app.use('/', (req, res) => {
+    res.send('<html><body><h1>Home Page</h1></body></html>');
 });
 
 app.listen(port, () => {
