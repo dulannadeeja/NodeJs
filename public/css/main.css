@@ -42,3 +42,17 @@ header nav ul {
   gap: 20px;
   align-items: center;
 }
+
+header nav ul li a {
+  font-size: 20px;
+  font-weight: 700;
+  color: black;
+}
+
+header nav ul li a:hover {
+  color: #a494e9;
+}
+
+header nav ul li a.active {
+  color: #7d66e4;
+}
