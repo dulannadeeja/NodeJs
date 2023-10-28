@@ -4,7 +4,7 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const adminRoutes = require('./Routes/Admin');
+const adminRoutes = require('./Routes/Admin').router;
 const shopRoutes = require('./Routes/Shop');
 
 const rootDir = require('./Utils/Path');
