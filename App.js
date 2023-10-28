@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path');
 
 const adminRoutes = require('./Routes/Admin');
 const shopRoutes = require('./Routes/Shop');
@@ -13,7 +14,7 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 app.use((req, res) => {
-    res.status(404).send('<html><body><h1>Page Not Found</h1></body></html>');
+    res.status(404).sendFile(path.join(__dirname, 'Views', '404.html'));
 });
 
 app.listen(port, () => {
