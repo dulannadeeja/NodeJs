@@ -9,7 +9,7 @@ const shopRoutes = require('./Routes/Shop');
 
 const rootDir = require('./Utils/Path');
 
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 app.set('views', 'Views');
 
 app.use(bodyParser.urlencoded({ extended: false }));
