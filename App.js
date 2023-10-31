@@ -4,10 +4,11 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const adminRoutes = require('./Routes/Admin').router;
-const shopRoutes = require('./Routes/Shop');
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+const errorController = require('./controllers/errorController');
 
-const rootDir = require('./Utils/Path');
+const rootDir = require('./utils/path');
 
 app.set('view engine', 'ejs');
 app.set('views', 'Views');
@@ -18,12 +19,7 @@ app.use(express.static(path.join(rootDir, 'Public')));
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-app.use((req, res) => {
-    res.status(404).render('404', {
-        title: '404 - Page Not Found',
-        path: '/404'
-    });
-});
+app.use(errorController.get404);
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
