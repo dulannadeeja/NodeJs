@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
+const User = require('../models/user');
 
 module.exports.getProducts = (req, res) => {
     Product.find()
@@ -7,7 +8,8 @@ module.exports.getProducts = (req, res) => {
             res.render('shop/product-list', {
                 title: 'All Products',
                 path: '/all-products',
-                products: products
+                products: products,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
@@ -22,7 +24,8 @@ module.exports.getProductView = (req, res) => {
             res.render('shop/product-view', {
                 title: product.title,
                 path: '/all-products',
-                product: product
+                product: product,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
@@ -33,11 +36,13 @@ module.exports.getProductView = (req, res) => {
 module.exports.getShop = (req, res) => {
     res.render('shop/index', {
         title: 'Shop',
-        path: '/'
+        path: '/',
+        isAuthenticated: req.session.isLoggedIn
     });
 }
 
 module.exports.getCart = (req, res) => {
+
     req.user.populate('cart.items.productId')
         .then(user => {
             const products = user.cart.items.map(item => {
@@ -54,12 +59,14 @@ module.exports.getCart = (req, res) => {
                 title: 'Cart',
                 path: '/cart',
                 products: products,
-                totalPrice: calcCartTotal(products)
+                totalPrice: calcCartTotal(products),
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
             console.log(err);
         });
+
 };
 
 const calcCartTotal = (products) => {
@@ -75,18 +82,19 @@ const calcCartTotal = (products) => {
 module.exports.getCheckout = (req, res) => {
     res.render('shop/checkout', {
         title: 'Checkout',
-        path: '/checkout'
+        path: '/checkout',
+        isAuthenticated: req.session.isLoggedIn
     });
 }
 
 module.exports.getOrders = (req, res) => {
     Order.find({ 'user.userId': req.user._id })
         .then(orders => {
-            console.log(orders[0].products);
             res.render('shop/orders', {
                 title: 'Orders',
                 path: '/orders',
-                orders: orders
+                orders: orders,
+                isAuthenticated: req.session.isLoggedIn
             });
         })
         .catch(err => {
@@ -108,10 +116,13 @@ module.exports.addToCart = (req, res) => {
                     console.log(err);
                 });
         });
+
+
 }
 
 module.exports.postCartDeleteItem = (req, res) => {
     const productId = req.body.productId;
+
     req.user.deleteCartItem(productId)
         .then(() => {
             res.redirect('/cart');
@@ -123,7 +134,8 @@ module.exports.postCartDeleteItem = (req, res) => {
 
 
 module.exports.postOrder = (req, res) => {
-    req.user.populate('cart.items.productId')
+    const user = req.user;
+    user.populate('cart.items.productId')
         .then(user => {
             const products = user.cart.items.map(item => {
                 return { product: { ...item.productId.toObject() }, qty: item.qty, total: item.qty * item.productId.price };
@@ -131,8 +143,8 @@ module.exports.postOrder = (req, res) => {
             const totalPrice = calcCartTotal(products);
             const order = new Order({
                 user: {
-                    username: req.user.username,
-                    userId: req.user
+                    username: user.username,
+                    userId: user._id
                 },
                 products: products,
                 totalPrice: totalPrice,
@@ -144,7 +156,7 @@ module.exports.postOrder = (req, res) => {
             });
             order.save()
                 .then(() => {
-                    req.user.clearCart()
+                    user.clearCart()
                         .then(() => {
                             res.redirect('/orders');
                         })
