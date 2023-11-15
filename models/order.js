@@ -1,86 +1,46 @@
-const getDb = require('../utils/database').getDb;
-const mongodb = require('mongodb');
+const mongoose = require('mongoose');
 
-module.exports = class Order {
-    constructor(id, products, userId, date, total, status, address) {
-        this._id = id;
-        this.products = products;
-        this.userId = userId;
-        this.date = date;
-        this.total = total;
-        this.status = status;
-        this.address = address;
+const Schema = mongoose.Schema({
+    date: {
+        type: Date,
+        required: true
+    },
+    products: [{
+        product: { type: Object, required: true },
+        qty: { type: Number, required: true },
+        total: { type: Number, required: true }
+    }],
+    user: {
+        username: {
+            type: String,
+            required: true
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        }
+    },
+    totalPrice: {
+        type: Number,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    paymentMethod: {
+        type: String,
+        required: true
+    },
+    paymentStatus: {
+        type: String,
+        required: true
+    },
+    deliveryStatus: {
+        type: String,
+        required: true
     }
+});
 
-    save() {
-        const db = getDb();
-        return db.collection('orders')
-            .insertOne(this)
-            .then(result => {
-                console.log(result);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-
-    static findAllOrdersOfUser = (userId) => {
-        const db = getDb();
-
-        return db.collection('orders').find({ userId: new mongodb.ObjectId(userId) }).toArray()
-            .then(orders => {
-                return orders;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-
-    static findById = (orderId) => {
-        const db = getDb();
-
-        return db.collection('orders').find({ _id: new mongodb.ObjectId(orderId) }).next()
-            .then(order => {
-                return order;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-
-    addToOrders = () => {
-        const db = getDb();
-
-        return db.collection('orders').insertOne(this)
-            .then(result => {
-                return result;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-
-    static getOrders = () => {
-        const db = getDb();
-
-        return db.collection('orders').find().toArray()
-            .then(orders => {
-                return orders;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-
-    static deleteById = (orderId) => {
-        const db = getDb();
-
-        return db.collection('orders').deleteOne({ _id: new mongodb.ObjectId(orderId) })
-            .then(result => {
-                return result;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
-}
+module.exports = mongoose.model('Order', Schema);

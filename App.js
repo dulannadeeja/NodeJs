@@ -7,8 +7,9 @@ const path = require('path');
 const adminRoutes = require('./Routes/Admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/errorController');
-const Mongodb = require('./utils/database');
-const Users = require('./models/user');
+
+const mongoose = require('mongoose');
+const User = require('./models/user');
 
 const rootDir = require('./utils/path');
 
@@ -19,9 +20,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(rootDir, 'Public')));
 
 app.use((req, res, next) => {
-    Users.findById("654d0e2efdcc3129f264fa68")
+    User.findById("6553bac7eb6bc76a7eda2815")
         .then(user => {
-            req.user = new Users(user.username, user.email, user._id, user.cart);
+            req.user = user;
             next();
         })
         .catch(err => {
@@ -35,9 +36,32 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+const username = encodeURIComponent("dulannadeeja");
+const password = encodeURIComponent("dnA@123");
+const cluster = "cluster0.wqsv7hi.mongodb.net";
+let uri = `mongodb+srv://${username}:${password}@${cluster}/node_project?retryWrites=true&w=majority`;
 
-Mongodb.mongoConnect(() => {
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+mongoose.connect(uri)
+    .then(() => {
+
+        User.findOne()
+            .then(user => {
+                if (!user) {
+                    const user = new User({
+                        username: "dulannadeeja",
+                        email: "dulannadeeja@gmail.com",
+                        cart: {
+                            items: []
+                        }
+                    });
+                    user.save();
+                }
+            });
+
+        app.listen(port, () => {
+            console.log(`Listening on port ${port}`);
+        });
+    })
+    .catch(err => {
+        console.log(err);
     });
-});

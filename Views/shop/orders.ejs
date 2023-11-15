@@ -14,16 +14,16 @@
                         <ul>
                             <% order.products.forEach(function(product) { %>
                                 <li>
-                                    <p>Product Name: <a href="/product/<%= product._id %>"><%= product.title %></a></p>
+                                    <p>Product Name: <a href="/product/<%=product.product._id%>"><%=product.product.title %></a></p>
                                     <div class="product-image-wrap">
-                                        <img src="<%= product.imageUrl %>" alt="<%= product.title %>" />
+                                        <img src="<%=product.product.imageUrl%>" alt="<%= product.product.title %>" />
                                     </div>
                                     <p>Quantity: <%= product.qty %></p>
-                                    <p>Price per Unit: $<%= product.price %></p>
+                                    <p>Price per Unit: $<%=product.product.price%></p>
                                 </li>
                             <% }); %>
                         </ul>
-                        <p>Total Price: $<%= order.total.toFixed(2) %></p>
+                        <p>Total Price: $<%= order.totalPrice.toFixed(2) %></p>
                     </li>
                 <% }); %>
             </ul>

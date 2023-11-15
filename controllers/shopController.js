@@ -2,7 +2,7 @@ const Product = require('../models/product');
 const Order = require('../models/order');
 
 module.exports.getProducts = (req, res) => {
-    Product.findAll()
+    Product.find()
         .then((products) => {
             res.render('shop/product-list', {
                 title: 'All Products',
@@ -38,26 +38,35 @@ module.exports.getShop = (req, res) => {
 }
 
 module.exports.getCart = (req, res) => {
-    req.user.getCart()
-        .then(products => {
-            const totalPrice = calcCartTotal(products);
+    req.user.populate('cart.items.productId')
+        .then(user => {
+            const products = user.cart.items.map(item => {
+                return {
+                    ...item.productId.toObject(),
+                    qty: item.qty,
+                    total: item.qty * item.productId.price
+                };
+            });
+
+            console.log(products);
+
             res.render('shop/cart', {
                 title: 'Cart',
                 path: '/cart',
                 products: products,
-                totalPrice: totalPrice
+                totalPrice: calcCartTotal(products)
             });
         })
         .catch(err => {
             console.log(err);
         });
-}
+};
 
 const calcCartTotal = (products) => {
     let totalPrice = 0;
 
     products.forEach(product => {
-        totalPrice += product.totalPrice;
+        totalPrice += product.total;
     });
 
     return totalPrice;
@@ -71,9 +80,9 @@ module.exports.getCheckout = (req, res) => {
 }
 
 module.exports.getOrders = (req, res) => {
-    Order.findAllOrdersOfUser(req.user._id)
+    Order.find({ 'user.userId': req.user._id })
         .then(orders => {
-            console.log(orders);
+            console.log(orders[0].products);
             res.render('shop/orders', {
                 title: 'Orders',
                 path: '/orders',
@@ -87,14 +96,11 @@ module.exports.getOrders = (req, res) => {
 
 module.exports.addToCart = (req, res) => {
 
-    console.log(req.body);
-
     const productId = req.body.productId;
 
     Product.findById(productId)
         .then(product => {
-            const productObj = new Product(product.title, product.imageUrl, product.description, product.price, product.userId, product._id)
-            req.user.addToCart(productObj)
+            req.user.addToCart(product)
                 .then(() => {
                     res.redirect('/cart');
                 })
@@ -102,13 +108,11 @@ module.exports.addToCart = (req, res) => {
                     console.log(err);
                 });
         });
-
-
 }
 
 module.exports.postCartDeleteItem = (req, res) => {
     const productId = req.body.productId;
-    req.user.deleteItemFromCart(productId)
+    req.user.deleteCartItem(productId)
         .then(() => {
             res.redirect('/cart');
         })
@@ -119,13 +123,25 @@ module.exports.postCartDeleteItem = (req, res) => {
 
 
 module.exports.postOrder = (req, res) => {
-    let fetchedCart;
-
-    req.user.getCart()
-        .then(products => {
-            fetchedCart = products;
+    req.user.populate('cart.items.productId')
+        .then(user => {
+            const products = user.cart.items.map(item => {
+                return { product: { ...item.productId.toObject() }, qty: item.qty, total: item.qty * item.productId.price };
+            });
             const totalPrice = calcCartTotal(products);
-            const order = new Order(null, products, req.user._id, new Date(), totalPrice, 'pending', null);
+            const order = new Order({
+                user: {
+                    username: req.user.username,
+                    userId: req.user
+                },
+                products: products,
+                totalPrice: totalPrice,
+                address: '1234 Main St.',
+                paymentMethod: 'Cash',
+                paymentStatus: 'Paid',
+                deliveryStatus: 'Not Shipped',
+                date: new Date()
+            });
             order.save()
                 .then(() => {
                     req.user.clearCart()
