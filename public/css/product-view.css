@@ -1,0 +1,43 @@
+.centered {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+hr {
+  border: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  margin: 20px 0;
+}
+
+h2 {
+  font-size: 20px;
+  color: #ff5733;
+}
+
+p {
+  font-size: 16px;
+  margin: 20px 0;
+}
+
+button.btn {
+  background-color: #ff5733;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+button.btn:hover {
+  background-color: #ff4520;
+}
