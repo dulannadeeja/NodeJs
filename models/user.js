@@ -5,12 +5,19 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    password: { type: String, required: true },
     email: String,
     cart: {
         items: [{
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
             qty: { type: Number, required: true }
         }]
+    },
+    resetToken: {
+        type: String
+    },
+    resetTokenExpiration: {
+        type: Date
     }
 });
 
