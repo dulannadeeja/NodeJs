@@ -56,11 +56,16 @@ app.use((req, res, next) => {
     }
     User.findById(req.session.user._id)
         .then(user => {
+            if (!user) {
+                throw new Error('User cannot be found in the system. Please log in again.');
+            }
             req.user = user;
             next();
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            next(error);
         });
 });
 
@@ -76,6 +81,19 @@ app.use('/admin', authentication, adminRoutes);
 app.use(shopRoutes);
 
 app.use(errorController.get404);
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.log(error);
+    res.status(error.httpStatusCode).render(error.httpStatusCode.toString(), {
+        title: 'Error',
+        path: `/${error.httpStatusCode.toString()}`,
+        isAuthenticated: req.session.isLoggedIn,
+        csrfToken: req.csrfToken(),
+        errorMessage: error.message
+    });
+    next();
+});
 
 mongoose.connect(uri)
     .then(() => {

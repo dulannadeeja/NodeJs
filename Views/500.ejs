@@ -1,0 +1,20 @@
+<%- include('includes/head') %>
+  <link rel="stylesheet" href="css/500.css">
+</head>  
+
+<body>
+<%- include('includes/navigation') %>
+<main>
+    <div class="container">
+        <div class="notify-wrap">
+            <h1>Internal Server Error (500)</h1>
+            <p>Oops! Something went wrong on our end. Our team has been notified, and we're working to fix the issue.</p>
+            <p>In the meantime, you can try refreshing the page or come back later.</p>
+            <p class="error-message"><%= errorMessage %></p>
+            <br>
+            <a href="/">Go to Home</a>
+        </div>
+    </div>
+</main>
+
+<%- include('includes/end') %>
