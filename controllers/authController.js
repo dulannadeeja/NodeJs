@@ -203,16 +203,18 @@ module.exports.postSignup = (req, res, next) => {
 
 module.exports.getResetPassword = (req, res, next) => {
     let message = req.flash();
-    if (message.error) {
-        message = message.error[0];
-    } else {
-        message = null;
-    }
+
+    message = message.error ? message.error[0] : null;
+
     console.log(message);
     res.render('auth/reset-password', {
         title: 'Reset Password',
         path: '/reset-password',
-        errorMessage: message
+        errorMessage: message,
+        validationErrors: [],
+        prevData: {
+            email: ''
+        }
     });
 }
 
@@ -220,45 +222,60 @@ module.exports.postResetPassword = (req, res, next) => {
     const token = generateToken();
     const email = req.body.email;
 
+    const validationErrors = validationResult(req);
+
+    if (!validationErrors.isEmpty()) {
+        console.log(validationErrors.array());
+        return res.status(422).render('auth/reset-password', {
+            title: 'Reset Password',
+            path: '/reset-password',
+            errorMessage: validationErrors.array()[0].msg,
+            validationErrors: validationErrors.array(),
+            prevData: {
+                email: req.body.email
+            }
+        });
+    }
+
     User.findOne({ email: email })
         .then(user => {
             if (!user) {
-                req.flash('error', 'No user found with that email');
+                req.flash('error', 'This email address is not registered. Please use a different one or sign up for a new account.');
                 return res.redirect('/reset-password');
             }
             user.resetToken = token;
             user.resetTokenExpiration = Date.now() + 3600000;
             return user.save()
-        })
-        .then(user => {
+                .then(user => {
 
-            if (!user) {
-                const error = new Error('Token cannot be generated. Please try again.');
-                error.httpStatusCode = 500;
-                throw error;
-            }
+                    if (!user) {
+                        const error = new Error('Token cannot be generated. Please try again.');
+                        error.httpStatusCode = 500;
+                        throw error;
+                    }
 
-            res.redirect('/');
-            return transporter.sendMail({
-                from: 'your.email@example.com',
-                to: user.email,
-                subject: "Password Reset Instructions",
-                html: `
-                    <p>Dear ${user.username},</p>
-                    <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
-                    <p>To reset your password, click on the following link:</p>
-                    <p><a href="http://localhost:3000/reset-password/${token}">Reset Password</a></p>
-                    <p>This link will expire in one hour for security reasons.</p>
-                    <p>If you are having trouble, copy and paste the following URL into your browser:</p>
-                    <p>http://localhost:3000/reset-password/${token}</p>
-                    <p>Thank you for using our services.</p>
-                    <p>Best regards,<br>Your App Team</p>
-                `,
-            })
-        })
-        .then(info => {
-            const previewUrl = nodemailer.getTestMessageUrl(info);
-            console.log(previewUrl);
+                    res.redirect('/');
+                    return transporter.sendMail({
+                        from: 'your.email@example.com',
+                        to: user.email,
+                        subject: "Password Reset Instructions",
+                        html: `
+                        <p>Dear ${user.username},</p>
+                        <p>We received a request to reset your password. If you did not make this request, please ignore this email.</p>
+                        <p>To reset your password, click on the following link:</p>
+                        <p><a href="http://localhost:3000/reset-password/${token}">Reset Password</a></p>
+                        <p>This link will expire in one hour for security reasons.</p>
+                        <p>If you are having trouble, copy and paste the following URL into your browser:</p>
+                        <p>http://localhost:3000/reset-password/${token}</p>
+                        <p>Thank you for using our services.</p>
+                        <p>Best regards,<br>Your App Team</p>
+                    `,
+                    })
+                        .then(info => {
+                            const previewUrl = nodemailer.getTestMessageUrl(info);
+                            console.log(previewUrl);
+                        })
+                })
         })
         .catch(err => {
             console.error(err);
@@ -290,7 +307,12 @@ module.exports.getNewPassword = (req, res, next) => {
                 path: '/new-password',
                 token: token,
                 errorMessage: errorMessage, // Pass the errorMessage to the view
-                userId: user._id.toString()
+                userId: user._id.toString(),
+                validationErrors: [],
+                prevData: {
+                    password: '',
+                    confirmPassword: ''
+                }
             });
         })
         .catch(err => {
@@ -305,7 +327,24 @@ module.exports.postSetPassword = (req, res, next) => {
     const userId = req.body.userId;
     const token = req.body.token;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
+
+    const validationErrors = validationResult(req);
+
+    if (!validationErrors.isEmpty()) {
+        console.log(validationErrors.array());
+        return res.status(422).render('auth/new-password', {
+            title: 'New Password',
+            path: '/new-password',
+            token: token,
+            errorMessage: validationErrors.array()[0].msg,
+            validationErrors: validationErrors.array(),
+            userId: userId,
+            prevData: {
+                password: req.body.password,
+                confirmPassword: req.body.confirmPassword
+            }
+        });
+    }
 
     User.findOne({ _id: userId, resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
         .then(user => {
@@ -341,11 +380,11 @@ module.exports.postSetPassword = (req, res, next) => {
                             <p>Best regards,<br>Your App Team</p>`
                     })
                 })
+                .then(info => {
+                    const previewUrl = nodemailer.getTestMessageUrl(info);
+                    console.log(previewUrl);
+                })
 
-        })
-        .then(info => {
-            const previewUrl = nodemailer.getTestMessageUrl(info);
-            console.log(previewUrl);
         })
         .catch(err => {
             console.error(err);
