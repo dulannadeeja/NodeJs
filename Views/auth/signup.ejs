@@ -1,0 +1,46 @@
+<%- include('../includes/head')  %>
+<link rel="stylesheet" href="css/auth-forms.css">
+</head>
+<body>
+    <%- include('../includes/navigation') %>
+    <div class="container">
+        <h1>Signup Now</h1>
+
+        <% if (errorMessage) { %>
+          <div class="error-wrap">
+            <p class="error-message"><%= errorMessage %></p>
+          </div>
+        <% } %>
+
+        <form action="/signup" method="post" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required value="<%= prevData.username %>"
+                    class="<%= validationErrors.find(element => element.path === 'username') ? 'input-invalid' : '' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required value="<%= prevData.email %>"
+                    class="<%= validationErrors.find(element => element.path === 'email') ? 'input-invalid' : '' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required value="<%= prevData.password %>"
+                    class="<%= validationErrors.find(element => element.path === 'password') ? 'input-invalid' : '' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required
+                    value="<%= prevData.confirmPassword %>"
+                    class="<%= validationErrors.find(element => element.path === 'confirmPassword') ? 'input-invalid' : '' %>">
+            </div>
+
+            <button type="submit" class="btn-primary">Sign Up</button>
+        </form>
+    </div>
+    <%- include('../includes/end') %>

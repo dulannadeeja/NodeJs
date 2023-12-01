@@ -1,0 +1,37 @@
+<%- include('../includes/head') %>
+    <link rel="stylesheet" href="css/auth-forms.css">
+</head>
+<body>
+    <%- include('../includes/navigation') %>
+    <div class="container">
+        <h1>Login</h1>
+        <% if (errorMessage) { %>
+            <div class="error-wrap">
+                <p class="error-message"><%= errorMessage %></p>
+            </div>
+          <% } %>
+        <form action="/login" method="post" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            
+            <div class="form-group">
+                <label for="usernameOrEmail">Username or Email:</label>
+                <input type="text" id="usernameOrEmail" name="usernameOrEmail" required
+                    value="<%= prevData.usernameOrEmail %>"
+                    class="<%= validationErrors.find(element => element.path === 'usernameOrEmail') ? 'input-invalid' : '' %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required
+                value="<%=prevData.password%>"
+                class="<%= validationErrors.find(element => element.path === 'password') ? 'input-invalid' : '' %>">
+            </div>
+            
+            <button type="submit">Login</button>
+
+        </form>
+        <a href="/reset-password">
+            <p>Forgot your password?</p>
+        </a>
+    </div>
+<%- include('../includes/end') %>

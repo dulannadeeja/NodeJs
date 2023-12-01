@@ -1,0 +1,93 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/product.css">
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+
+            <main>
+                <% if (products.length > 0) { %>
+                    <div class="grid">
+                        <% for (let product of products) { %>
+                            <article class="card product-item">
+                                <header class="card__header">
+                                    <h1 class="product__title">
+                                        <%= product.title %>
+                                    </h1>
+                                </header>
+                                <div class="card__image">
+                                    <img src="/<%=product.imageUrl %>" alt="<%= product.title %>">
+                                </div>
+                                <div class="card__content">
+                                    <h2 class="product__price">$
+                                        <%= product.price %>
+                                    </h2>
+                                    <p class="product__description">
+                                        <%= product.description %>
+                                    </p>
+                                </div>
+                                <div class="card__actions">
+                                    <a href="/product/<%= product._id %>" class="btn">View</a>
+                                    <% if(isAuthenticated) { %>
+                                    <form action="/add-to-cart" method="POST">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="productId" value="<%=product._id%>">
+                                        <button class="btn">Add to Cart</button>
+                                    </form>
+                                    <% } %>
+                                </div>
+                            </article>
+
+                            <% } %>
+                    </div>
+
+                    <div class="pagination">
+
+                        <div class="<%= currentPage > 1 ? 'pagination-item' : 'pagination-item disabled' %>">
+                            <a href="?page=<%= currentPage - 1  %>">Prev</a>
+                        </div>
+
+                        <% if (lastPage < 6) { %>
+                            <% for (let i = 0; i < lastPage; i++) { %>
+                                <div class="<%= currentPage == i + 1 ? 'pagination-item active' : 'pagination-item' %>">
+                                    <a href="?page=<%= i + 1 %>"><%= i + 1 %></a>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <% if (currentPage > 4 && currentPage < lastPage - 1) { %>
+                                <% for (let i = 0; i < lastPage; i++) { %>
+                                    <% if (i > currentPage - 4 && i < currentPage + 2) { %>
+                                        <div class="<%= currentPage == i + 1 ? 'pagination-item active' : 'pagination-item' %>">
+                                            <a href="?page=<%= i + 1 %>"><%= i + 1 %></a>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+                            <% } else if (currentPage > 4 && currentPage > lastPage - 2) { %>
+                                <% for (let i = 0; i < lastPage; i++) { %>
+                                    <% if (i > lastPage - 6) { %>
+                                        <div class="<%= currentPage == i + 1 ? 'pagination-item active' : 'pagination-item' %>">
+                                            <a href="?page=<%= i + 1 %>"><%= i + 1 %></a>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+                            <% } else { %>
+                                <% for (let i = 0; i < 5; i++) { %>
+                                    <div class="<%= currentPage == i + 1 ? 'pagination-item active' : 'pagination-item' %>">
+                                        <a href="?page=<%= i + 1 %>"><%= i + 1 %></a>
+                                    </div>
+                                <% } %>
+                            <% } %>
+                        <% } %>
+                        
+
+                        <div class="<%= currentPage < lastPage ? 'pagination-item' : 'pagination-item disabled' %>">
+                            <a href="?page=<%= currentPage + 1  %>">Next</a>
+                        </div>
+
+                    </div>
+
+                    <% } else { %>
+                        <h1>No Products Found!</h1>
+                        <% } %>
+            </main>
+            <%- include('../includes/end.ejs') %>
