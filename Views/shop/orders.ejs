@@ -24,6 +24,11 @@
                             <% }); %>
                         </ul>
                         <p>Total Price: $<%= order.totalPrice.toFixed(2) %></p>
+
+                        <!-- link to get invoice -->
+                        <form action="/orders/<%= order._id %>" method="GET">
+                            <button class="btn" type="submit">Get Invoice</button>
+                        </form>
                     </li>
                 <% }); %>
             </ul>

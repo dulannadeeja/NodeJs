@@ -3,7 +3,7 @@
     </head>
 
     <body>
-        <%- include('../includes/navigation.ejs') %>
+        <%- include('../includes/navigation.ejs',{ title: 'Checkout' }) %>
 
         <main>
             <div class="cart">
@@ -29,8 +29,7 @@
                         <h3>Total: <%= totalPrice %></h3>
                     </div>
                     <div class="checkout">
-                        <form action="/create-order" method="POST">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <form action="/checkout" method="get">
                             <button class="btn" type="submit">Checkout</button>
                         </form>
                     </div>

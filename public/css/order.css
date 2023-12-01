@@ -7,15 +7,7 @@
   margin: 20px 0;
   border: 1px solid #ccc;
   padding: 10px;
-  background-color: #f9f9f9;
-}
-
-.container h2 {
-  color: #333;
-}
-
-.container h3 {
-  color: #666;
+  background-color: var(--secondary-bg-color);
 }
 
 /* Style the product details */

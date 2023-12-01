@@ -2,7 +2,7 @@
   margin: 20px;
   padding: 20px;
   border: 1px solid #ccc;
-  background-color: #f9f9f9;
+  background-color: var(--secondary-bg-color);
 }
 
 .cart h1 {
@@ -22,7 +22,7 @@
   border: 1px solid #ccc;
   padding: 10px;
   margin-bottom: 10px;
-  background-color: #fff;
+  background-color: var(--bg-color);
 }
 
 .cart li h3 {
